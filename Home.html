@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <title>Home</title>
+        <link rel="stylesheet" href="Home.css">
+    </head>
+    <body>
+        <div class="container">
+            <div class="profile">
+                <img src="defaultprofilepic.png" alt="Profile Picture">
+                <p>Hello</p>
+                <h1>John Doe</h1><!--Automatically fill this in with name of current logged in user-->
+            </div>
+            <div class="balance">
+                <h2>Balance:</h2>
+                <p>$1200</p><!--Automatically fill this with the current total of user's accounts-->
+            </div>
+            <div class="menu_grid">
+                <a href="Account.html" class="menu account">
+                    <p>Accounts</p>
+                </a>
+                <a href="Budgeting.html" class="menu budgeting">
+                    <p>Budgeting</p>
+                </a><a href="Investments.html" class="menu investments">
+                    <p>Investments</p>
+                </a><a href="Reports.html" class="menu reports">
+                    <p>Reports</p>
+                </a>
+            </div>
+            <button class="logout_btn">Logout</button>
+        </div>
+        <script src="Home.js"></script>
+    </body>
+</html>

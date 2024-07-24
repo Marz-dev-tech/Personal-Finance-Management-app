@@ -2,6 +2,7 @@ document.querySelector('.login_form').addEventListener('submit',
     function(e){
         e.preventDefault();
         alert('Log in successful!');
+        window.location.href='Home.html';
         //add database code here
     }); 
 
@@ -12,7 +13,7 @@ document.querySelector('.forgot_password').addEventListener('click',
         //connect to the password reset point
     });
 
-  document.querySelector('.create_account').addEventListener('click',
+document.querySelector('.create_account').addEventListener('click',
     function(e){
         e.preventDefault();
         alert('Redirecting to account form');
