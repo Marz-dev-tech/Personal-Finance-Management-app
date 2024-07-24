@@ -1,0 +1,85 @@
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: #9ac4bf;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.container {
+    background-color: #7191e165;
+    text-align: center;
+    width: 400px;
+    border-radius: 10px;
+    padding: 40px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+.logo img{
+    width: 100px;
+    margin-bottom: 20px;
+}
+
+h1 {
+    font-size: 24px;
+    margin-bottom: 30px;
+}
+
+.login_form input{
+    width: calc(100% - 20px);
+    margin: 10px 0;
+    border: none;
+    border-radius: 5px;
+    padding: 10px;
+}
+
+.login_form button{
+    width: 100%;
+    margin-top: 10px;
+    border: none;
+    border-radius: 5px;
+    padding: 10px;
+    background: linear-gradient(90deg,#0ad65f,#2407b6);
+    color: #fff;
+    cursor: pointer;
+}
+
+.login_form .forgot_password{
+    display: block;
+    margin-top: 15px;
+    color: #941b5c;
+    text-decoration: none;
+}
+
+.create_account{
+    display: block;
+    margin-top: 20px;
+    color: #000;
+    text-decoration: none;
+}
+
+.create_account span{
+    color: #ee0979;
+    border-bottom: 1px solid #ee0979;
+}
+
+.footer {
+    margin-top: 30px;
+    padding: 20px;
+    background: linear-gradient(90deg,#0ad65f,#2407b6);
+    border-radius: 10px;
+}
+
+.footer h2{
+    margin: 0;
+    font-size: 18px;
+}
+
+.footer p{
+    margin-top: 10px;
+    font-size: 14px;
+    color: #111;
+}
