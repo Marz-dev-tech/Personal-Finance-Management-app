@@ -1,7 +1,7 @@
 document.querySelector('.login_form').addEventListener('submit',
     function(e){
         e.preventDefault();
-        window.location.href='Home.html';
+        //window.location.href='Home.html';
         //alert('Log in successful!');
         //add database code here
     }); 
