@@ -1,45 +1,35 @@
 <?php
+include 'connect.php';
 session_start();
 
-// Include database connection
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "usersdb"; // Replace with your database name
-
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+$response = array('status' => 'error', 'message' => '');
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = $conn->real_escape_string($_POST['email']);
     $password = $_POST['password'];
 
-    // Retrieve user from database
     $sql = "SELECT * FROM users WHERE email = '$email'";
     $result = $conn->query($sql);
 
     if ($result->num_rows == 1) {
         $user = $result->fetch_assoc();
 
-        // Verify password
         if (password_verify($password, $user['password'])) {
-            // Password is correct, set session variables and redirect to a protected page
             $_SESSION['loggedin'] = true;
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['user_name'] = $user['first_name'];
-            header("Location: protected_page.php"); // Change to your protected page
-            exit;
+            $response['status'] = 'success';
+            $response['message'] = 'Login successful!';
+          //  header("Location: homepage.php"); // Redirect after login
         } else {
-            echo "Incorrect password.";
+            $response['message'] = 'Incorrect password.';
         }
     } else {
-        echo "No user found with this email.";
+        $response['message'] = 'No user found with this email.';
     }
-
-    $conn->close();
 }
 
+header('Content-Type: application/json');
+echo json_encode($response);
+$conn->close();
+?>

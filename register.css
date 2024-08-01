@@ -71,3 +71,14 @@ button {
 button:hover {
     background-color: #0056b3;
 }
+.signIn{
+    display: block;
+    margin-top: 20px;
+    color: #000;
+    text-decoration: none;
+}
+
+.signIn span{
+    color: #ee0979;
+    border-bottom: 1px solid #ee0979;
+}
