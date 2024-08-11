@@ -43,12 +43,12 @@ $conn->close();
             <img src="360logo1.png" alt="logo">
         </div>
         <ul>
-            <li><a href="#account" class="active">Account</a></li>
+            <li><a href="#account" class="account-btn">Account</a></li>
             <li><a href="#budgets">Budgets</a></li>
             <li><a href="#investments">Investments</a></li>
             <li><a href="#reports">Reports</a></li>
         </ul>
-        <a href="logout.php" class="logout">Logout</a>
+        <button class="logout-btn">Logout</button>
     </div>
 
     <!-- Main content -->
@@ -56,7 +56,7 @@ $conn->close();
         <!-- Top navigation bar -->
         <div class="navbar">
             <div class="user-info">
-                <img src="user_icon.png" alt="User Icon" class="user-icon">
+                <img src="defaultprofilepic.png" alt="User Icon" class="user-icon">
                 <span>Welcome, <?php echo htmlspecialchars($user_name); ?></span>
             </div>
         </div>
@@ -68,8 +68,8 @@ $conn->close();
                 <canvas id="lineGraph"></canvas>
             </div>
 
-            <!-- New Transactions Form -->
-            <div class="new-transactions-form" id="newTransactionForm" style="display: none;">
+             <!-- New Transactions Form (Hidden by default, dropdown-triggered) -->
+             <div class="new-transactions-form" id="newTransactionForm" style="display: none;">
                 <h2>New Transactions</h2>
                 <form id="transactionForm">
                     <label for="amount">Amount</label>
@@ -92,27 +92,35 @@ $conn->close();
             </div>
 
             <!-- Transaction summary -->
-            <div class="transaction-summary">
-                <h2>Recent Transactions</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Type</th>
-                            <th>Description</th>
-                            <th>Date</th>
-                        </tr>
-                    </thead>
-                    <tbody id="transactionTableBody">
-                        <?php while ($transaction = $transactions->fetch_assoc()): ?>
+            <div class="transaction-summary-container">
+                <div class="transaction-summary">
+                    <h2>Recent Transactions</h2>
+                    <table>
+                        <thead>
                             <tr>
-                                <td><?php echo htmlspecialchars($transaction['transaction_type']); ?></td>
-                                <td><?php echo htmlspecialchars($transaction['description']); ?></td>
-                                <td><?php echo htmlspecialchars($transaction['transaction_date']); ?></td>
+                                <th>Amount</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                                <th>Date</th>
                             </tr>
-                        <?php endwhile; ?>
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody id="transactionTableBody">
+                            <?php while ($transaction = $transactions->fetch_assoc()): ?>
+                                <tr>
+                                    <td><?php echo htmlspecialchars($transaction['amount']); ?></td>
+                                    <td><?php echo htmlspecialchars($transaction['transaction_type']); ?></td>
+                                    <td><?php echo htmlspecialchars($transaction['description']); ?></td>
+                                    <td><?php echo htmlspecialchars($transaction['transaction_date']); ?></td>
+                                </tr>
+                            <?php endwhile; ?>
+                        </tbody>
+                    </table>
+                </div>
             </div>
+
+           
+
+            
         </div>
     </div>
 
@@ -148,11 +156,12 @@ $conn->close();
             }
         });
 
-        // Show New Transactions Form
-        document.querySelector('.sidebar a[href="#account"]').addEventListener('click', function() {
-            document.getElementById('newTransactionForm').style.display = 'block';
+        // Toggle New Transactions Form
+        document.querySelector('.account-btn').addEventListener('click', function() {
+            const form = document.getElementById('newTransactionForm');
+            form.style.display = form.style.display === 'block' ? 'none' : 'block';
         });
-        
+
         // Handle New Transaction Form Submission
         document.getElementById('transactionForm').addEventListener('submit', function(event) {
             event.preventDefault();
@@ -173,71 +182,56 @@ $conn->close();
             .catch(error => console.error('Error:', error));
         });
 
+        // Handle logout
+        document.querySelector('.logout-btn').addEventListener('click', function() {
+            window.location.href = 'main.php';
+        });
+
         function updateGraph() {
-        fetch('get_account_data.php') // Fetch updated account data
-        .then(response => response.json())
-        .then(accountData => {
-            const labels = accountData.map(data => data.date);
-            const dataPoints = accountData.map(data => data.balance);
+            fetch('get_account_data.php') // Fetch updated account data
+                .then(response => response.json())
+                .then(accountData => {
+                    const labels = accountData.map(data => data.date);
+                    const dataPoints = accountData.map(data => data.balance);
 
-            const ctx = document.getElementById('lineGraph').getContext('2d');
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Account Balance Over the Last Week',
-                        data: dataPoints,
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    scales: {
-                        x: {
-                            beginAtZero: true
+                    const ctx = document.getElementById('lineGraph').getContext('2d');
+                    new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Account Balance Over the Last Week',
+                                data: dataPoints,
+                                borderColor: 'rgba(75, 192, 192, 1)',
+                                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                borderWidth: 1
+                            }]
                         },
-                        y: {
-                            beginAtZero: true
+                        options: {
+                            scales: {
+                                x: {
+                                    beginAtZero: true
+                                },
+                                y: {
+                                    beginAtZero: true
+                                }
+                            }
                         }
-                    }
-                }
-            });
-        });
-    }
+                    });
+                });
+        }
 
-    function updateTransactionTable() {
-        fetch('get_transactions.php') // Fetch updated transactions
-        .then(response => response.text())
-        .then(html => {
-            document.getElementById('transactionTableBody').innerHTML = html;
-        });
-    }
+        function updateTransactionTable() {
+            fetch('get_transactions.php') // Fetch updated transactions
+                .then(response => response.text())
+                .then(html => {
+                    document.getElementById('transactionTableBody').innerHTML = html;
+                });
+        }
 
-    document.getElementById('transactionForm').addEventListener('submit', function(event) {
-        event.preventDefault();
-        const formData = new FormData(this);
-
-        fetch('add_transaction.php', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            alert(data.message);
-            if (data.status === 'success') {
-                updateGraph(); // Update the graph
-                updateTransactionTable(); // Update the transaction table
-                document.getElementById('transactionForm').reset(); // Reset form
-            }
-        })
-        .catch(error => console.error('Error:', error));
-    });
-
-    // Initial load of graph and transactions
-    updateGraph();
-    updateTransactionTable();
+        // Initial load of graph and transactions
+        updateGraph();
+        updateTransactionTable();
     </script>
 </body>
 </html>
