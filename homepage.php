@@ -12,17 +12,30 @@ if (!isset($_SESSION['loggedin'])) {
 $user_id = $_SESSION['user_id'];
 $user_name = $_SESSION['user_name'];
 
+// Initialize variables
+$result = null;
+$transactions = null;
+$account_data = [];
+
 // Fetch account balance data
 $sql = "SELECT date, balance FROM account_balances WHERE user_id = '$user_id' AND date >= NOW() - INTERVAL 1 WEEK";
 $result = $conn->query($sql);
-$account_data = [];
-while ($row = $result->fetch_assoc()) {
-    $account_data[] = $row;
+
+if ($result === false) {
+    error_log("Error fetching account balance data: " . $conn->error);
+} else {
+    while ($row = $result->fetch_assoc()) {
+        $account_data[] = $row;
+    }
 }
 
 // Fetch transactions
 $sql = "SELECT * FROM transactions WHERE user_id = '$user_id' ORDER BY transaction_date DESC LIMIT 5";
 $transactions = $conn->query($sql);
+
+if ($transactions === false) {
+    error_log("Error fetching transactions: " . $conn->error);
+}
 
 $conn->close();
 ?>
@@ -46,7 +59,7 @@ $conn->close();
             <li><a href="#account" class="account-btn">Account</a></li>
             <li><a href="budgets.php">Budgets</a></li>
             <li><a href="#investments">Investments</a></li>
-            <li><a href="#reports">Reports</a></li>
+            <li><a href="reports.php">Reports</a></li>
         </ul>
         <button class="logout-btn">Logout</button>
     </div>
@@ -68,8 +81,22 @@ $conn->close();
                 <canvas id="lineGraph"></canvas>
             </div>
 
-             <!-- New Transactions Form (Hidden by default, dropdown-triggered) -->
-             <div class="new-transactions-form" id="newTransactionForm" style="display: none;">
+            <!-- Upload File Button -->
+            <div class="upload-container">
+                <button id="uploadFileBtn">Upload File</button>
+            </div>
+
+            <!-- File Upload Form (Hidden by default) -->
+            <div id="uploadFileForm" style="display: none;">
+                <h2>Upload Bank Statement</h2>
+                <form action="upload_statement.php" method="post" enctype="multipart/form-data">
+                    <input type="file" name="statement" accept=".pdf, .csv, .xlsx" required>
+                    <button type="submit">Upload</button>
+                </form>
+            </div>
+
+            <!-- New Transactions Form (Hidden by default, dropdown-triggered) -->
+            <div class="new-transactions-form" id="newTransactionForm" style="display: none;">
                 <h2>New Transactions</h2>
                 <form id="transactionForm">
                     <label for="amount">Amount</label>
@@ -105,133 +132,174 @@ $conn->close();
                             </tr>
                         </thead>
                         <tbody id="transactionTableBody">
-                            <?php while ($transaction = $transactions->fetch_assoc()): ?>
+                            <?php if ($transactions && $transactions->num_rows > 0): ?>
+                                <?php while ($transaction = $transactions->fetch_assoc()): ?>
+                                    <tr>
+                                        <td><?php echo htmlspecialchars($transaction['amount']); ?></td>
+                                        <td><?php echo htmlspecialchars($transaction['transaction_type']); ?></td>
+                                        <td><?php echo htmlspecialchars($transaction['description']); ?></td>
+                                        <td><?php echo htmlspecialchars($transaction['transaction_date']); ?></td>
+                                    </tr>
+                                <?php endwhile; ?>
+                            <?php else: ?>
                                 <tr>
-                                    <td><?php echo htmlspecialchars($transaction['amount']); ?></td>
-                                    <td><?php echo htmlspecialchars($transaction['transaction_type']); ?></td>
-                                    <td><?php echo htmlspecialchars($transaction['description']); ?></td>
-                                    <td><?php echo htmlspecialchars($transaction['transaction_date']); ?></td>
+                                    <td colspan="4">No recent transactions found.</td>
                                 </tr>
-                            <?php endwhile; ?>
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
             </div>
-
-           
-
-            
         </div>
     </div>
 
     <script>
-        // Prepare data for the line graph
-        const accountData = <?php echo json_encode($account_data); ?>;
-        const labels = accountData.map(data => data.date);
-        const dataPoints = accountData.map(data => data.balance);
+      // Declare chartInstance in the global scope
+let chartInstance = null;
 
-        // Create the line graph
-        const ctx = document.getElementById('lineGraph').getContext('2d');
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Account Balance Over the Last Week',
-                    data: dataPoints,
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    x: {
-                        beginAtZero: true
-                    },
-                    y: {
-                        beginAtZero: true
-                    }
+// Prepare data for the line graph
+function initializeGraph() {
+    const accountData = <?php echo json_encode($account_data); ?>;
+    const labels = accountData.map(data => data.date);
+    const dataPoints = accountData.map(data => data.balance);
+
+    const ctx = document.getElementById('lineGraph').getContext('2d');
+
+    // Destroy the previous chart instance if it exists
+    if (chartInstance) {
+        chartInstance.destroy();
+    }
+
+    // Create a new chart instance
+    chartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Account Balance Over the Last Week',
+                data: dataPoints,
+                borderColor: 'rgba(75, 192, 192, 1)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                x: {
+                    beginAtZero: true
+                },
+                y: {
+                    beginAtZero: true
                 }
             }
-        });
+        }
+    });
+}
 
-        // Toggle New Transactions Form
-        document.querySelector('.account-btn').addEventListener('click', function() {
-            const form = document.getElementById('newTransactionForm');
-            form.style.display = form.style.display === 'block' ? 'none' : 'block';
-        });
+function updateGraph() {
+    fetch('get_account_data.php') // Fetch updated account data
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(accountData => {
+            if (!Array.isArray(accountData)) {
+                throw new Error('Unexpected data format');
+            }
 
-        // Handle New Transaction Form Submission
-        document.getElementById('transactionForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-            const formData = new FormData(this);
+            const labels = accountData.map(data => data.date);
+            const dataPoints = accountData.map(data => data.balance);
 
-            fetch('add_transaction.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                alert(data.message);
-                if (data.status === 'success') {
-                    // Reload the page to update the graph and table
-                    window.location.reload();
-                }
-            })
-            .catch(error => console.error('Error:', error));
-        });
+            const ctx = document.getElementById('lineGraph').getContext('2d');
 
-        // Handle logout
-        document.querySelector('.logout-btn').addEventListener('click', function() {
-            window.location.href = 'main.php';
-        });
+            // Destroy the previous chart instance if it exists
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
 
-        function updateGraph() {
-            fetch('get_account_data.php') // Fetch updated account data
-                .then(response => response.json())
-                .then(accountData => {
-                    const labels = accountData.map(data => data.date);
-                    const dataPoints = accountData.map(data => data.balance);
-
-                    const ctx = document.getElementById('lineGraph').getContext('2d');
-                    new Chart(ctx, {
-                        type: 'line',
-                        data: {
-                            labels: labels,
-                            datasets: [{
-                                label: 'Account Balance Over the Last Week',
-                                data: dataPoints,
-                                borderColor: 'rgba(75, 192, 192, 1)',
-                                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                                borderWidth: 1
-                            }]
+            // Create a new chart instance
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Account Balance Over the Last Week',
+                        data: dataPoints,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            beginAtZero: true
                         },
-                        options: {
-                            scales: {
-                                x: {
-                                    beginAtZero: true
-                                },
-                                y: {
-                                    beginAtZero: true
-                                }
-                            }
+                        y: {
+                            beginAtZero: true
                         }
-                    });
-                });
-        }
+                    }
+                }
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching account data:', error);
+        });
+}
 
-        function updateTransactionTable() {
-            fetch('get_transactions.php') // Fetch updated transactions
-                .then(response => response.text())
-                .then(html => {
-                    document.getElementById('transactionTableBody').innerHTML = html;
-                });
-        }
+function updateTransactionTable() {
+    fetch('get_transactions.php') // Fetch updated transactions
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('transactionTableBody').innerHTML = html;
+        });
+}
 
-        // Initial load of graph and transactions
-        updateGraph();
-        updateTransactionTable();
+// Initial load of graph and transactions
+window.onload = function() {
+    initializeGraph();  // Initial graph creation
+    updateTransactionTable();
+};
+
+// Toggle File Upload Form
+document.getElementById('uploadFileBtn').addEventListener('click', function() {
+    const uploadForm = document.getElementById('uploadFileForm');
+    uploadForm.style.display = uploadForm.style.display === 'block' ? 'none' : 'block';
+});
+
+// Toggle New Transactions Form
+document.querySelector('.account-btn').addEventListener('click', function() {
+    const form = document.getElementById('newTransactionForm');
+    form.style.display = form.style.display === 'block' ? 'none' : 'block';
+});
+
+// Handle New Transaction Form Submission
+document.getElementById('transactionForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    const formData = new FormData(this);
+
+    fetch('add_transaction.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message);
+        if (data.status === 'success') {
+            // Reload the page to update the graph and table
+            window.location.reload();
+        }
+    })
+    .catch(error => console.error('Error:', error));
+});
+
+// Handle logout
+document.querySelector('.logout-btn').addEventListener('click', function() {
+    window.location.href = 'main.php';
+});
+
     </script>
 </body>
 </html>

@@ -11,8 +11,8 @@ if (!isset($_SESSION['loggedin'])) {
 // Get user info
 $user_id = $_SESSION['user_id'];
 
-// Fetch account balance data
-$sql = "SELECT date, balance FROM account_balances WHERE user_id = '$user_id' AND date >= NOW() - INTERVAL 1 WEEK";
+// Fetch all account balance data
+$sql = "SELECT date, balance FROM account_balances WHERE user_id = '$user_id'";
 $result = $conn->query($sql);
 $account_data = [];
 while ($row = $result->fetch_assoc()) {

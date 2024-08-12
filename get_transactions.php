@@ -18,6 +18,7 @@ $result = $conn->query($sql);
 $rows = '';
 while ($transaction = $result->fetch_assoc()) {
     $rows .= '<tr>
+                <td>' . htmlspecialchars($transaction['amount']) . '</td>
                 <td>' . htmlspecialchars($transaction['transaction_type']) . '</td>
                 <td>' . htmlspecialchars($transaction['description']) . '</td>
                 <td>' . htmlspecialchars($transaction['transaction_date']) . '</td>

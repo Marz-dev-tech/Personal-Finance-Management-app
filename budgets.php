@@ -42,7 +42,7 @@ $conn->close();
             <li><a href="homepage.php">Account</a></li>
             <li><a href="budgets.php" class="active">Budgets</a></li> <!-- This line ensures Budgets is active -->
             <li><a href="#investments">Investments</a></li>
-            <li><a href="#reports">Reports</a></li>
+            <li><a href="reports.php">Reports</a></li>
         </ul>
         <button class="logout-btn">Logout</button>
     </div>
