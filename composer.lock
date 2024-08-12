@@ -1,0 +1,62 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "e7de96f2098310ef0b4cf20b4cf5b17e",
+    "packages": [
+        {
+            "name": "levizwannah/mpesa-sdk-php",
+            "version": "v1.1.2.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/levizwannah/mpesa-sdk-php.git",
+                "reference": "a0b4c3606c789e32886ce21808b251787f1c7b34"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/levizwannah/mpesa-sdk-php/zipball/a0b4c3606c789e32886ce21808b251787f1c7b34",
+                "reference": "a0b4c3606c789e32886ce21808b251787f1c7b34",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "LeviZwannah\\MpesaSdk\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Levi Kamara Zwannah",
+                    "email": "levizwannah@gmail.com"
+                }
+            ],
+            "description": "An independent Mpesa SDK for PHP. This package provides a clean implementation of the Safaricom Mpesa API for PHP applications.",
+            "keywords": [
+                "Independent Mpesa Package",
+                "Mpesa PHP",
+                "Mpesa Package",
+                "Safaricom M-Pesa"
+            ],
+            "support": {
+                "issues": "https://github.com/levizwannah/mpesa-sdk-php/issues",
+                "source": "https://github.com/levizwannah/mpesa-sdk-php/tree/v1.1.2.3"
+            },
+            "time": "2024-04-08T02:01:30+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": [],
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": [],
+    "plugin-api-version": "2.6.0"
+}
