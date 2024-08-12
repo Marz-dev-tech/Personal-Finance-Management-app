@@ -44,7 +44,7 @@ $conn->close();
         </div>
         <ul>
             <li><a href="#account" class="account-btn">Account</a></li>
-            <li><a href="#budgets">Budgets</a></li>
+            <li><a href="budgets.php">Budgets</a></li>
             <li><a href="#investments">Investments</a></li>
             <li><a href="#reports">Reports</a></li>
         </ul>
