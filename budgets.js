@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     const budgetRows = document.querySelectorAll('tbody tr');//('.budgets-table tbody tr')
-    const budgetDetails = document.querySelector('.budget-details');//('.budget-details');
+    const budgetDetails = document.querySelector('.container[data-budget-details]');//('.budget-details');
     const budgetChartCanvas = document.getElementById('budgetChart').getContext('2d');
     let currentBudgetId = null;
     let budgetChart = null;
@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', function() {
         event.preventDefault();
         const formData = new FormData(this);
         formData.append('budget_id', currentBudgetId);
-        fetch('add_transaction.php', {
+        fetch('add_budget_transaction.php', {
             method: 'POST',
             body: formData
         })
@@ -51,7 +51,12 @@ document.addEventListener('DOMContentLoaded', function() {
         fetch(`get_budget_details.php?budget_id=${budgetId}`)
             .then(response => response.json())
             .then(data => {
-                const { target_amount, saved_amount, transactions } = data;
+                const { name, target_amount, saved_amount, transactions } = data;
+
+                const budgetName = document.getElementById('budgetName');
+                if(budgetName){
+                    budgetName.textContent = name;
+                }
 
                 budgetDetails.style.display = 'block';
 

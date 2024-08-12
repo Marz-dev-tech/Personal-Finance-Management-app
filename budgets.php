@@ -95,20 +95,17 @@ $conn->close();
             </div>
 
             <!-- Budget Details and Transactions Container -->
-            <div class="container" style="display: none;">
-                <h2>Budget Details</h2>
+            <div class="container" data-budget-details style="display: none;">
+                <h2 id="budgetName"></h2>
                 <canvas id="budgetChart"></canvas>
-
                 <!-- Add Transaction Form -->
                 <div class="container">
                     <h2>Add Transaction</h2>
                     <form id="transactionForm">
                         <label for="transaction_amount">Amount</label>
                         <input type="number" id="transaction_amount" name="transaction_amount" required>
-
                         <label for="transaction_date">Date</label>
                         <input type="date" id="transaction_date" name="transaction_date" required>
-
                         <button type="submit">Add Transaction</button>
                     </form>
                 </div>

@@ -20,8 +20,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $transaction_date = $conn->real_escape_string($_POST['transaction_date']);
 
     // Insert data into transactions table
-    $sql = "INSERT INTO transactions (user_id, amount, transaction_type, description, transaction_date) 
-            VALUES ('$user_id', '$amount', '$type', '$description', '$transaction_date')";
+    $sql = "INSERT INTO transactions (user_id, amount, transaction_type, description, transaction_date) VALUES ('$user_id', '$amount', '$type', '$description', '$transaction_date')";
 
     if ($conn->query($sql) === TRUE) {
         // Update account balance
