@@ -104,7 +104,7 @@ $conn->close();
 
                     <label for="transaction_type">Transaction Type</label>
                     <select id="transaction_type" name="transaction_type" required>
-                        <option value="deposit">Deposit</option>
+                       <<option value="deposit">Deposit</option>
                         <option value="withdrawal">Withdrawal</option>
                     </select>
 
@@ -153,12 +153,13 @@ $conn->close();
         </div>
     </div>
 
-    <script>
+<script>
       // Declare chartInstance in the global scope
 let chartInstance = null;
 
 // Prepare data for the line graph
 function initializeGraph() {
+  
     const accountData = <?php echo json_encode($account_data); ?>;
     const labels = accountData.map(data => data.date);
     const dataPoints = accountData.map(data => data.balance);
@@ -176,7 +177,7 @@ function initializeGraph() {
         data: {
             labels: labels,
             datasets: [{
-                label: 'Account Balance Over the Last Week',
+                label: 'Account Balance',
                 data: dataPoints,
                 borderColor: 'rgba(75, 192, 192, 1)',
                 backgroundColor: 'rgba(75, 192, 192, 0.2)',
